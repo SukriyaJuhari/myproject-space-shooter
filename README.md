@@ -1,4 +1,3 @@
-# myproject-space-shooter
 # 🚀 MyProject Space Shooter
 
 Ini adalah game **Space Shooter 2D** berbasis **Phaser.js** dan **HTML5**, yang sedang dikembangkan sebagai latihan coding dan prototipe untuk game **Play-to-Earn** masa depan.
@@ -16,6 +15,7 @@ Ini adalah game **Space Shooter 2D** berbasis **Phaser.js** dan **HTML5**, yang 
 - Indikator Exp & Energi: ⏳ Belum terdefinisi
 
 ### 🚀 GamePlay_Scene (`/scenes/GamePlay_Scene.js`)
+
 #### UI:
 - ✅ Fullscreen Toggle (On/Off)
 - ⏳ Indikator: HP, EXP Skill, Amunisi, Boom Amunisi, Nyawa
