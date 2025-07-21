@@ -48,7 +48,7 @@ export class Player {
     this.gameW = scene.scale.width;
     this.gameH = scene.scale.height;
     
-    var SFXVol = 0.1;
+    var SFXVol = 0.2;
     this.SFXvolume = SFXVol;
     
     //================================================
@@ -148,15 +148,13 @@ export class Player {
       
     }; //this.createAnimsBullet();
     
-    //create audio sound Bullet
-    this.bulletSounds = scene.sound.add('SFXBulletFire1');
-
+    
     
     // Menginisialisasi level peluru dan status waktu
-    this.WeaponLevel = 1; // Level peluru awal
+    this.WeaponLevel = 3; // Level peluru awal
     this.BulletLevel = Math.min(this.WeaponLevel, 3);
     this.lastShotTime = 0;
-    this.fireRate = 100; // dalam milidetik
+    this.fireRate = 150; // dalam milidetik
     
     let timer = 0;
     
@@ -170,8 +168,6 @@ export class Player {
       let x = this.Player.x;
       let y = this.Player.y;
       
-      
-      
       const patterns = {
         1: [0],
         2: [-25, 25],
@@ -179,22 +175,24 @@ export class Player {
       } [this.BulletLevel] || [];
       
       
-            
+      
       for (let i = 0; i < patterns.length; i++) {
         const BulletOffsetX = patterns[i];
         let offsetX = BulletOffsetX;
-      
-            // Mainkan suara peluru
-            this.bulletSounds.play({ volume: this.SFXvolume, rate: 1 });
-                        
-            // Buat peluru
-            this.createAnimsBullet(60, x + offsetX, y);
-            
-            this.PlayerBullet.setVelocityY(-BulletSpeed); // (ganti ke grup jika ingin banyak peluru aktif!)
-            
-            
-          
-
+        
+        //create audio sound Bullet
+        this.bulletSounds = scene.sound.add('SFXBulletFire1');
+        // Mainkan suara peluru
+        this.bulletSounds.play({ volume: this.SFXvolume, rate: 1 });
+        
+        // Buat peluru
+        this.createAnimsBullet(60, x + offsetX, y);
+        
+        this.PlayerBullet.setVelocityY(-BulletSpeed); // (ganti ke grup jika ingin banyak peluru aktif!)
+        
+        
+        
+        
       }
     };
     
@@ -220,7 +218,7 @@ export class Player {
     
     
     //Index semua animasi PlayerBulletEmit.
-    this.PlayerBulletGroup.getChildren().forEach(function(PlayerBulletEmit,PlayerBullet)
+    this.PlayerBulletGroup.getChildren().forEach(function(PlayerBulletEmit, PlayerBullet)
     {
       //saat animasi telah selesai.
       PlayerBulletEmit.once('animationcomplete', (animation, frame) => {
