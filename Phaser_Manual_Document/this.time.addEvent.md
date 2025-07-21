@@ -81,5 +81,3 @@ this.time.addEvent({
 * Efek visual sementara (hilang dalam 3 detik)
 
 ---
-
-Kalau kamu mau aku bantu buat sistem `cooldown`, `auto-spawn`, atau semacam "delay animation", bilang saja ya!
