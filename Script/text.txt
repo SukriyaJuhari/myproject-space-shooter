@@ -1,0 +1,807 @@
+// ./main.js
+import BootScene from './core/BootScene.js';
+import FullScreenBtnScene from './core/FullScreenBtnScene.js';
+import PreloadScene from './core/PreloadScene.js';
+import MainMenuScene from './Scenes/MainMenuScene.js';
+import GamePlayScene from './Scenes/GamePlayScene.js';
+
+const isMobile = window.innerWidth <= 640; const config={ type: Phaser.AUTO, width: isMobile ? window.innerWidth : 640, height: isMobile ? window.innerHeight : 1280, parent: 'game' , physics: { default: 'arcade' , arcade: { gravity: { y: 0 }, debug: false } }, scene: [ BootScene, PreloadScene, MainMenuScene, GamePlayScene, FullScreenBtnScene ], scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH // ✅ Pusatkan di layar } }; const game=new Phaser.Game(config); // ./core/BootScene.js export default class BootScene extends Phaser.Scene { constructor() { super("BootScene"); } preload() { //Background image load/ this.load.image('Background0', 'assets/image/Background/Background1.png' ); } create() { this.scale.scaleMode=Phaser.Scale.FIT; this.scale.pageAlignHorizontally=true; this.scale.pageAlignVertically=true; console.log("Booting Successfully!!"); // Setelah siap, langsung ke Preload this.scene.start("PreloadScene"); } } // core/FullScreenBtnScene.js export default class FullScreenBtnScene extends Phaser.Scene { constructor() { super({ key: 'FullScreenBtnScene' , active: true }); // <- aktif langsung } preload() { //UI image fullscreenOff this.load.image('fullscreenOn', 'assets/image/UI/FullscreenOn.png' ); this.load.image('fullscreenOff', 'assets/image/UI/FullscreenOff.png' ); } create() { const fsButton=this.add.image(this.scale.width - 20, 20, 'fullscreenOn' ) .setOrigin(1, 0) .setInteractive() .setScrollFactor(0) .setScale(0.1) .setDepth(99); fsButton.on('pointerup', ()=> {
+  if (this.scale.isFullscreen) {
+  this.scale.stopFullscreen();
+  fsButton.setTexture('fullscreenOn');
+  } else {
+  this.scale.startFullscreen();
+  fsButton.setTexture('fullscreenOff');
+  }
+  });
+  }
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  // ./core/PreloadScene.js
+  export default class PreloadScene extends Phaser.Scene {
+  constructor() {
+  super("PreloadScene");
+  }
+  
+  preload() {
+  this.add.image(
+  this.scale.width / 2,
+  this.scale.height / 2,
+  'Background0'
+  );
+  
+  
+  
+  
+  // Memuat gambar kapal pemain level 1
+  this.load.image('PlayerShipLevel1', 'assets/image/PlayerShipLevel1/PlayerShipLevel1.png');
+  // Memuat gambar kapal miring
+  this.load.image('PlayerShipLevel1Tilt', 'assets/image/PlayerShipLevel1/PlayerShipLevel1Tilt.png');
+  
+  //=======================================================================================
+  // Memuat spritesheet untuk thruster Player
+  this.load.spritesheet('PlayerShipThruster_Sprsheet', 'assets/spritesheet/PlayerShipThruster_Sprsheet/PlayerShipThruster_Sprsheet.png', {
+  frameWidth: 188,
+  frameHeight: 319
+  });
+  // Memuat spritesheet untuk animasi emisi peluru
+  this.load.spritesheet('PlayerBulletEmit_Sprsheet', 'assets/spritesheet/PlayerBulletEmit_Sprsheet/PlayerBulletEmit_Sprsheet.png', {
+  frameWidth: 337,
+  frameHeight: 308
+  });
+  // Memuat spritesheet untuk animasi thruster peluru
+  this.load.spritesheet('PlayerBullet_Sprsheet', 'assets/spritesheet/PlayerBullet_Sprsheet/PlayerBullet_Sprsheet.png', {
+  frameWidth: 274,
+  frameHeight: 343
+  });
+  //=============================================================================
+  
+  //audio load BulletSound SFX_PlayerShip_BulletFire1
+  this.load.audio('SFXBulletFire1', 'assets/audio/SFX/SFX_PlayerShip_BulletFire1.wav');
+  
+  //================================================
+  //audio load Backsound
+  this.load.audio('BackSound0', 'assets/audio/sound/Backsound0.ogg');
+  
+  //================================================
+  
+  
+  // 🟦 Background loading
+  this.cameras.main.setBackgroundColor("#1a1a1a");
+  
+  // 🟦 Progress bar graphic
+  let progressBox = this.add.graphics();
+  let progressBar = this.add.graphics();
+  
+  // Kotak luar (background bar)
+  progressBox.fillStyle(0x222222, 0.8);
+  progressBox.fillRect(0, 280, this.scale.width, 5);
+  
+  // Text loading
+  let loadingText = this.add.text(this.scale.width / 2, 250, "Loading...", {
+  font: "20px Arial",
+  fill: "#ffffff"
+  }).setOrigin(0.5);
+  
+  // Text persen
+  let percentText = this.add.text(this.scale.width / 2, 305, "0%", {
+  font: "18px Arial",
+  fill: "#ffffff"
+  }).setOrigin(0.5);
+  
+  // Text asset yang sedang dimuat
+  let assetText = this.add.text(this.scale.width / 2, 360, "", {
+  font: "16px Arial",
+  fill: "#ffffff"
+  }).setOrigin(0.5);
+  
+  // Event progress (0–1)
+  this.load.on("progress", (value) => {
+  progressBar.clear();
+  progressBar.fillStyle(0xffffff, 1);
+  progressBar.fillRect(0, 290, this.scale.width * value, 5);
+  percentText.setText(parseInt(value * 100) + "%");
+  });
+  
+  // Event file progress
+  this.load.on("fileprogress", (file) => {
+  assetText.setText("Loading: " + file.key);
+  });
+  
+  // Event complete
+  this.load.on("complete", () => {
+  progressBar.destroy();
+  progressBox.destroy();
+  loadingText.destroy();
+  percentText.destroy();
+  assetText.destroy();
+  console.log("Loading Successfully!!")
+  
+  // Setelah selesai → ke MainMenuScene (atau langsung GameplayScene)
+  this.scene.start("MainMenuScene");
+  });
+  
+  }
+  
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  //./Scenes/GamePlayScene.js
+  import { MapBackground } from "../Script/Map/MapIndex.js";
+  import Player from "../Script/Player/mainPlayer.js";
+  
+  export default class GamePlayScene extends Phaser.Scene {
+  constructor() {
+  super("GamePlayScene");
+  }
+  
+  create() {
+  this.gameW = this.scale.width;
+  this.gameH = this.scale.height;
+  
+  //=======================================================================================================================================================================================================
+  // MapBackground create
+  this.MapBg = new MapBackground(this);
+  //=======================================================================================================================================================================================================
+  
+  //=======================================================================================================================================================================================================
+  //Player create
+  this.Player = new Player(this, this.gameW / 2, this.gameH / 1.2);
+  //=======================================================================================================================================================================================================
+  
+  }
+  
+  update(time, delta) {
+  //=======================================================================================================================================================================================================
+  // MapBackground update
+  this.MapBg.update(time, delta);
+  //=======================================================================================================================================================================================================
+  
+  //=======================================================================================================================================================================================================
+  //Player update
+  this.Player.update(time, delta);
+  //=======================================================================================================================================================================================================
+  
+  
+  }
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  // ./Scenes/MainMenuScene.js
+  export default class MainMenuScene
+  extends Phaser.Scene
+  {
+  constructor() {
+  super('MainMenuScene');
+  }
+  
+  
+  create()
+  {
+  this.Background0 = this.add.image(
+  this.scale.width / 2,
+  this.scale.height / 2,
+  'Background0'
+  );
+  
+  this.titleText = this.add.text(
+  this.scale.width / 2,
+  this.scale.height / 2,
+  'Tap To Play',
+  {
+  fontSize: '32px',
+  color: '#ffffff'
+  }
+  ).setOrigin(0.5).setInteractive();
+  
+  this.titleText.on('pointerdown', () => {
+  
+  this.scene.start('GamePlayScene');
+  
+  });
+  
+  console.log('MainMenuScene Ok✓')
+  }
+  
+  
+  
+  update()
+  {
+  
+  };
+  
+  
+  
+  }; //extends Phaser.Scene
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  // ./Script/Map/MapBackground.js
+  export default class MapBackground {
+  constructor(scene) {
+  this.scene = scene;
+  this.gameW = scene.scale.width;
+  
+  // Membuat background pakai scene
+  this.BGimage0 = scene.add.image(this.gameW / 2, 0, 'Background0');
+  this.BGimage0Copy1 = scene.add.image(this.gameW / 2, -1920, 'Background0');
+  this.BGimage0Copy2 = scene.add.image(this.gameW / 2, -1920 * 2, 'Background0');
+  this.BGList = [
+  this.BGimage0,
+  this.BGimage0Copy1,
+  this.BGimage0Copy2
+  ];
+  
+  //Background function
+  this.runBG = function(speed, Offset) {
+  this.BGList.forEach(BGAll => {
+  BGAll.setOrigin(0.5, 0).setDepth(0).setScale(1);
+  BGAll.y += speed;
+  });
+  
+  //Background logika
+  if (this.BGList[0].y >= Offset) {
+  this.BGList[0].y = -Offset;
+  }
+  if (this.BGList[1].y >= Offset) {
+  this.BGList[1].y = -Offset;
+  }
+  if (this.BGList[2].y >= Offset) {
+  this.BGList[2].y = -Offset * 2;
+  }
+  }
+  //CREATE BACKGROUND
+  
+  }
+  
+  update () {
+  this.runBG(5, this.BGList[0].height);
+  }
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  //./Script/Player/Objek.js
+  export default class Objek {
+  constructor(scene, SpriteKey, x, y, setCircle = 50,setOffsetX = 5,setOffsetY = 15,) {
+  
+  //==============================================================================
+  // Membuat objek player
+  this.Ship = scene.add.sprite(0, 0, SpriteKey).setScale(0.60);
+  //==============================================================================
+  
+  //==============================================================================
+  // add container Player
+  this.ShipBox = scene.add.container(x, y, this.Ship, ).setDepth(4);
+  //add physics existing this.PlayerBox container
+  scene.physics.add.existing(this.ShipBox);
+  this.ShipBox.body.setCollideWorldBounds(true);
+  this.ShipBox.body.setCircle(setCircle)
+  .setOffset(
+  -this.ShipBox.body.x / setOffsetX,
+  -this.ShipBox.body.y / setOffsetY
+  );
+  
+  //==============================================================================
+  
+  console.log('PlayerShip Ok✓ ' + 'x :' + this.ShipBox.body.x + ' y :' + this.ShipBox.body.y);
+  
+  }
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  //./Script/Player/Thruster.js
+  export default class Thruster {
+  constructor(scene, container, OffsetXR, OffsetXL) {
+  //==============================================================================
+  // add sprite thruster untuk Objek player
+  this.ThrusterR = scene.add.sprite(OffsetXR, 60, 'PlayerShipThruster_Sprsheet').setDepth(4).setScale(0.10);
+  this.ThrusterL = scene.add.sprite(OffsetXL, 60, 'PlayerShipThruster_Sprsheet').setDepth(4).setScale(0.10);
+  // Membuat animasi untuk thruster
+  scene.anims.create({
+  key: 'PlayAnim_PlayerShipThruster',
+  frames: scene.anims.generateFrameNumbers('PlayerShipThruster_Sprsheet', { start: 0, end: 5 }),
+  frameRate: 20,
+  repeat: -1,
+  });
+  // play animasi PlayerShipThruster
+  this.ThrusterR.play('PlayAnim_PlayerShipThruster');
+  this.ThrusterL.play('PlayAnim_PlayerShipThruster');
+  // tambahkan ke container
+  container.add([this.ThrusterR, this.ThrusterL]);
+  //==============================================================================
+  console.log('Thruster script Ok✓');
+  }
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  //./Script/Player/Controller.js
+  export default class PlayerController {
+  constructor(scene, ship, shipBox, thrusterR, thrusterL, ShipKey = 'PlayerShipLevel1', ShipTiltKey = 'PlayerShipLevel1Tilt', tolerTouch = 50, minSpeed = 50, maxSpeed = 300) {
+  this.scene = scene;
+  // optional sprites (boleh di-set dari luar)
+  this.ship = ship ?? null;
+  this.shipBox = shipBox ?? null;
+  this.thrusterR = thrusterR ?? null;
+  this.thrusterL = thrusterL ?? null;
+  
+  this.ShipKey = ShipKey;
+  this.ShipTiltKey = ShipTiltKey;
+  this.tolerTouch = tolerTouch;
+  this.minSpeed = minSpeed;
+  this.maxSpeed = maxSpeed;
+  
+  this.touchActive = false;
+  this.touchPoint = null;
+  this.distance = 0;
+  this.accel = 0;
+  
+  
+  // bound handlers supaya bisa di-off()
+  this._onPointerDown = this._onPointerDown.bind(this);
+  this._onPointerMove = this._onPointerMove.bind(this);
+  this._onPointerUp = this._onPointerUp.bind(this);
+  
+  scene.input.on('pointerdown', this._onPointerDown);
+  scene.input.on('pointermove', this._onPointerMove);
+  scene.input.on('pointerup', this._onPointerUp);
+  
+  // cleanup otomatis saat scene shutdown/destroy
+  scene.events.on('shutdown', this.destroy, this);
+  scene.events.on('destroy', this.destroy, this);
+  
+  console.log('Controller Ran>>✓');
+  }
+  
+  _getPointerPos(pointer) {
+  // gunakan worldX/worldY bila ada camera
+  return {
+  x: Math.round(pointer.worldX ?? pointer.x),
+  y: Math.round(pointer.worldY ?? pointer.y)
+  };
+  }
+  
+  _onPointerDown(pointer) {
+  this.touchActive = true;
+  this.touchPoint = this._getPointerPos(pointer);
+  }
+  _onPointerMove(pointer) {
+  if (!this.touchActive) return;
+  this.touchPoint = this._getPointerPos(pointer);
+  }
+  _onPointerUp(pointer) {
+  this.touchActive = false;
+  }
+  
+  update() {
+  if (!this.shipBox || !this.shipBox.body) return;
+  
+  
+  if (this.touchActive && this.touchPoint) {
+  this.distance = Phaser.Math.Distance.Between(this.shipBox.x, this.shipBox.y, this.touchPoint.x, this.touchPoint.y);
+  if (this.distance > this.tolerTouch / 4) {
+  this.accel = Phaser.Math.Clamp(this.distance * 5, this.minSpeed, this.maxSpeed);
+  this.scene.physics.moveTo(this.shipBox, this.touchPoint.x, this.touchPoint.y, this.accel);
+  
+  // tilt
+  if (this.touchPoint.x < this.shipBox.x - this.tolerTouch) { this.ship?.setTexture(this.ShipTiltKey); this.ship?.setFlipX(false); } else if (this.touchPoint.x> this.shipBox.x + this.tolerTouch) {
+    this.ship?.setTexture(this.ShipTiltKey);
+    this.ship?.setFlipX(true);
+    } else {
+    this.ship?.setTexture(this.ShipKey);
+    }
+    
+    // thrust visual
+    if (this.touchPoint.y < this.shipBox.y) { if (this.thrusterR) { this.thrusterR.setScale(0.20, 0.25); this.thrusterR.y=80; } if (this.thrusterL) { this.thrusterL.setScale(0.20, 0.25); this.thrusterL.y=80; } } else { if (this.thrusterR) { this.thrusterR.setScale(0.15); this.thrusterR.y=60; } if (this.thrusterL) { this.thrusterL.setScale(0.15); this.thrusterL.y=60; } } } else { // dekat=> berhenti
+      this.shipBox.body.setVelocity(0);
+      this.ship?.setTexture(this.ShipKey);
+      if (this.thrusterR) { this.thrusterR.setScale(0.20);
+      this.thrusterR.y = 70; }
+      if (this.thrusterL) { this.thrusterL.setScale(0.20);
+      this.thrusterL.y = 70; }
+      }
+      } else {
+      // tidak ada input
+      this.shipBox.body.setVelocity(0);
+      this.ship?.setTexture(this.ShipKey);
+      if (this.thrusterR) { this.thrusterR.setScale(0.20);
+      this.thrusterR.y = 70; }
+      if (this.thrusterL) { this.thrusterL.setScale(0.20);
+      this.thrusterL.y = 70; }
+      }
+      }
+      
+      destroy() {
+      // lepaskan semua listener
+      if (!this.scene) return;
+      this.scene.input.off('pointerdown', this._onPointerDown);
+      this.scene.input.off('pointermove', this._onPointerMove);
+      this.scene.input.off('pointerup', this._onPointerUp);
+      this.scene.events.off('shutdown', this.destroy, this);
+      this.scene.events.off('destroy', this.destroy, this);
+      // dereference
+      this.shipBox = null;
+      this.ship = null;
+      this.thrusterR = null;
+      this.thrusterL = null;
+      this.scene = null;
+      }
+      }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      // ./Script/Player/Weapons/WeaponBase.js
+      export default class WeaponBase extends Phaser.Physics.Arcade.Sprite {
+      constructor(scene, shipBox,x, y, textureKey) {
+      super(scene,shipBox, x, y, textureKey);
+      scene.add.existing(this);
+      scene.physics.add.existing(this);
+      
+      this._spawnTime = 0;
+      
+      this.setActive(false);
+      this.setVisible(false);
+      }
+      
+      fire(x, y, speed) {
+      this.body.reset(x, y);
+      this.setActive(true);
+      this.setVisible(true);
+      this.setVelocityY(-speed);
+      this._spawnTime = this.scene.time.now;
+      }
+      
+      preUpdate(time, delta) {
+      super.preUpdate(time, delta);
+      if (this.active && time - this._spawnTime > this.lifespan) {
+      this.kill();
+      }
+      }
+      
+      kill() {
+      this.setActive(false);
+      this.setVisible(false);
+      this.body.stop();
+      }
+      
+      onHit(target) {
+      if (target.takeDamage) target.takeDamage(this.damage);
+      this.kill();
+      }
+      }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      // ./Script/Player/Weapons/Bullet.js
+      import WeaponBase from './WeaponBase.js';
+      
+      export default class Bullet extends WeaponBase {
+      constructor(scene, x, y) {
+      super(scene, x, y, 'PlayerBullet_Sprsheet');
+      
+      // properti khusus bullet
+      this.speed = 1200;
+      this.damage = 1;
+      this.lifespan = 1500;
+      this.SFXvolume = 0.5;
+      
+      this.setDepth(6).setScale(0.1, 0.5);
+      
+      // animasi peluru
+      if (!scene.anims.exists('PlayAnim_PlayerBullet')) {
+      scene.anims.create({
+      key: 'PlayAnim_PlayerBullet',
+      frames: scene.anims.generateFrameNumbers('PlayerBullet_Sprsheet', { start: 0, end: 4 }),
+      frameRate: 50,
+      repeat: -1,
+      });
+      }
+      this.play('PlayAnim_PlayerBullet');
+      }
+      
+      fire(shipBox, x, y, offsetX) {
+      super.fire(x, y, this.speed);
+      
+      // efek muzzle flash
+      if (!this.scene.anims.exists('PlayAnim_PlayerBulletEmit')) {
+      this.scene.anims.create({
+      key: 'PlayAnim_PlayerBulletEmit',
+      frames: this.scene.anims.generateFrameNumbers('PlayerBulletEmit_Sprsheet', { start: 0, end: 3 }),
+      frameRate: 70,
+      repeat: 0,
+      });
+      }
+      
+      let muzzle = this.scene.add.sprite(offsetX, - 80, 'PlayerBulletEmit_Sprsheet').setScale(0.3);
+      muzzle.play('PlayAnim_PlayerBulletEmit');
+      if (shipBox) shipBox.add([muzzle]); // contoh kalau playerBox ada
+      muzzle.on('animationcomplete', () => muzzle.destroy());
+      
+      // suara
+      this.scene.sound.play('SFXBulletFire1', { volume: this.SFXvolume });
+      }
+      }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      // ./Script/Player/Weapons/WeaponCreate.js
+      import Bullet from './Bullet.js';
+      
+      export default class WeaponCreate {
+      constructor(scene, shipBox) {
+      this.scene = scene;
+      this.ShipBox = shipBox;
+      
+      // pengaturan level senjata dan jenisnya
+      this.weaponLevel = 1;
+      
+      //===================================================================================================================
+      //Bullet Program.
+      this.bulletLeve = Math.min(this.weaponLevel, 3);
+      this.lastShotTime = 0; //menyimpan waktu tembakan terakhir
+      this.fireRate = 200; // tembakan 200ms per/bullet
+      // pool peluru (bulletGroup)
+      this.bulletGroup = scene.physics.add.group({
+      classType: Bullet,
+      maxSize: 1000,
+      runChildUpdate: true
+      });
+      
+      this.shootBullet = function(time) {
+      if (time - this.lastShotTime < this.fireRate) return; this.lastShotTime=time; // posisi spawn berdasarkan level Bullet const postPoin={ 1: [0], 2: [-25, 25], 3: [-25, 0, 25] } [this.bulletLeve] || []; postPoin.forEach((offsetX, i)=> {
+        this.scene.time.delayedCall(this.fireRate / 3 * i, () => {
+        let x = this.ShipBox.x + offsetX;
+        let y = this.ShipBox.y;
+        // ambil bullet dari pool
+        const bullet = this.bulletGroup.get(x, y);
+        if (bullet) {
+        bullet.fire(this.ShipBox, x, y - 160, offsetX);
+        }
+        });
+        });
+        }
+        //Bullet Program.
+        //===================================================================================================================
+        
+        } //constructor
+        
+        update(time, delta) {
+        
+        
+        this.shootBullet(time); //update function Bullet shoot
+        
+        }; //update()
+        
+        } //export default class WeaponCreate
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        //./Script/Player/Index.js
+        export { default as Objek } from "./Objek.js";
+        export { default as Thruster } from "./Thruster.js";
+        export { default as Controller } from "./Controller.js";
+        export { default as WeaponCreate } from "./Weapons/WeaponCreate.js";
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        //./Script/Player/mainPlayer.js
+        import { Objek, Thruster, Controller, WeaponCreate } from "./Index.js";
+        
+        export default class Player {
+        constructor(scene, x, y, spriteKey = 'PlayerShipLevel1', spriteTiltKey = 'PlayerShipLevel1Tilt') {
+        this.scene = scene;
+        
+        //objek player
+        this.objek = new Objek(scene, spriteKey, x, y);
+        const ship = this.objek.Ship;
+        const shipBox = this.objek.ShipBox;
+        
+        // thruster player
+        this.thruster = new Thruster(scene, shipBox, 34, -34);
+        const thrusterL = this.thruster.ThrusterL;
+        const thrusterR = this.thruster.ThrusterR;
+        
+        // Weapon Player
+        this.weaponPlayer = new WeaponCreate(scene, shipBox);
+        
+        // controller Player (input Touch dan cursor )
+        this.controller = new Controller(
+        scene,
+        ship,
+        shipBox,
+        thrusterR,
+        thrusterL,
+        spriteKey,
+        spriteTiltKey,
+        50, 50, 500
+        );
+        console.log("Player Ran>>✓")
+        
+        };//constructor())
+        
+        update(time,delta) {
+        
+        this.controller.update(time,delta); //controller update
+        this.weaponPlayer.update(time, delta); //weapon update
+        
+        };//update()
+        
+        };//export default class Player
